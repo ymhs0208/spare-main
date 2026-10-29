@@ -1,13 +1,13 @@
 import React from 'react';
-import { KeyRound, Share2, Menu } from 'lucide-react';
+import { KeyRound, Share2 } from 'lucide-react';
+import { NavMenuButton } from './NavMenu';
 
 interface AppHeaderProps {
   isScrolled: boolean;
   onShareClick: () => void;
-  onMenuClick: () => void;
 }
 
-export default function AppHeader({ isScrolled, onShareClick, onMenuClick }: AppHeaderProps) {
+export default function AppHeader({ isScrolled, onShareClick }: AppHeaderProps) {
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${isScrolled ? 'p-2 sm:p-2' : 'p-4 sm:p-6'}`}>
       <div className="max-w-6xl mx-auto pointer-events-auto">
@@ -37,12 +37,10 @@ export default function AppHeader({ isScrolled, onShareClick, onMenuClick }: App
             >
               <Share2 className={`text-slate-900 ${isScrolled ? 'w-5 h-5' : 'w-6 h-6 sm:w-7 sm:h-7'}`} />
             </button>
-            <button
-              onClick={onMenuClick}
+            <NavMenuButton
               className={`bg-sky-200 flex items-center justify-center border-slate-900 transition hover:bg-sky-300 active:translate-y-1 active:shadow-none ${isScrolled ? 'w-10 h-10 sm:w-10 sm:h-10 rounded-xl border-2 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]' : 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border-4 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]'}`}
-            >
-              <Menu className={`text-slate-900 ${isScrolled ? 'w-5 h-5' : 'w-6 h-6 sm:w-7 sm:h-7'}`} />
-            </button>
+              iconClassName={`text-slate-900 ${isScrolled ? 'w-5 h-5' : 'w-6 h-6 sm:w-7 sm:h-7'}`}
+            />
           </div>
         </header>
       </div>

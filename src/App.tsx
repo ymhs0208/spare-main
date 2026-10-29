@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin, User, BookOpen, Calculator, Award, PenTool,
-  Search, Building2, Map, Compass, Anchor, Cpu,
-  Mountain, Sparkles, AlertCircle, ChevronRight, ChevronDown,
-  Library, ArrowRight, Activity, KeyRound, Info, Shield, History, ChartBar, Download, List, QrCode, Check, Menu, X, Filter, Share2, Mail, Link as LinkIcon,
-  Target, Lightbulb, Flame, ShieldCheck, Layers, Brain, Copyright, Database, Instagram, AtSign
+  Search, Building2, Map, Sparkles, AlertCircle, ChevronRight, ChevronDown,
+  Library, ArrowRight, Activity, KeyRound, Info, ChartBar, Download, List, QrCode, Check, Filter,
+  Target, Lightbulb, Flame, ShieldCheck, Layers
 } from 'lucide-react';
 import VocationalModal from './components/VocationalModal';
 import VocationalEncyclopediaModal from './components/VocationalEncyclopediaModal';
@@ -39,6 +38,7 @@ import ScoreInquiryModal from './components/ScoreInquiryModal';
 import DataProviderModal from './components/DataProviderModal';
 // Layout Components
 import AppHeader from './components/layout/AppHeader';
+import NavMenu, { type NavMenuAction } from './components/layout/NavMenu';
 import Footer from './components/layout/Footer';
 import HeroBanner from './components/layout/HeroBanner';
 
@@ -80,8 +80,6 @@ const [activeModal, setActiveModal] = useState<'instructions' | 'disclaimer' | '
   const [isRegionOpen, setIsRegionOpen] = useState(false);
   const [vocationalGroups, setVocationalGroups] = useState<string[]>(['all']);
   const [isExternalLinksOpen, setIsExternalLinksOpen] = useState(false);
-  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
-  const [expandedNavCategory, setExpandedNavCategory] = useState<string | null>('schoolDetails');
   
   // Comparison
   const [comparisonSchools, setComparisonSchools] = useState<any[]>([]);
@@ -242,6 +240,18 @@ const [activeModal, setActiveModal] = useState<'instructions' | 'disclaimer' | '
     }
   };
 
+  const handleNavAction = useCallback((action: NavMenuAction) => {
+    if (action.type === 'holland') {
+      setIsHollandTestOpen(true);
+      return;
+    }
+    if (action.type === 'encyclopedia') {
+      setIsEncyclopediaOpen(true);
+      return;
+    }
+    setActiveModal(action.id);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100 pb-32 overflow-hidden relative">
       
@@ -252,7 +262,6 @@ const [activeModal, setActiveModal] = useState<'instructions' | 'disclaimer' | '
       <AppHeader 
         isScrolled={isScrolled} 
         onShareClick={() => setActiveModal('sharePlatform')} 
-        onMenuClick={() => setIsNavMenuOpen(true)} 
       />
 
       <main className="max-w-6xl mx-auto px-4 mt-32 sm:mt-40 space-y-8 relative z-10">
@@ -1415,286 +1424,7 @@ const [activeModal, setActiveModal] = useState<'instructions' | 'disclaimer' | '
         onClose={() => setActiveModal(null)}
       />
 
-      {/* Navigation Drawer */}
-      <AnimatePresence>
-        {isNavMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsNavMenuOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
-            />
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[380px] max-w-full border-l-4 border-slate-900 bg-slate-50 shadow-[-8px_0px_0px_0px_rgba(15,23,42,0.1)] z-[110] flex flex-col overflow-hidden"
-            >
-              <div className="p-5 bg-amber-400 border-b-4 border-slate-900 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-3">
-                  <Menu className="w-6 h-6 text-slate-900" />
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">主選單</h2>
-                </div>
-                <button
-                  onClick={() => setIsNavMenuOpen(false)}
-                  className="w-10 h-10 bg-white flex items-center justify-center border-4 border-slate-900 rounded-xl hover:bg-slate-100 transition shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-y-1 active:shadow-none"
-                >
-                  <X className="w-6 h-6 text-slate-900" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
-                
-                {/* 學校與科系探索 */}
-                <div className="bg-white rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
-                  <button 
-                    onClick={() => setExpandedNavCategory(prev => prev === 'schoolDetails' ? null : 'schoolDetails')}
-                    className="w-full flex items-center justify-between p-4 bg-sky-50 outline-none hover:bg-sky-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-sky-200 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <Compass className="w-5 h-5 text-sky-700" />
-                      </div>
-                      <span className="font-black text-slate-900 text-lg">學校與科系探索</span>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-slate-900 transition-transform ${expandedNavCategory === 'schoolDetails' ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {expandedNavCategory === 'schoolDetails' && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t-4 border-slate-900 bg-white">
-                        <div className="p-3 flex flex-col gap-2">
-                            <button
-                              onClick={() => { setIsHollandTestOpen(true); setIsNavMenuOpen(false); }}
-                              className="w-full text-left px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 flex items-center justify-between group active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-1.5 bg-purple-100 border-2 border-slate-900 rounded-lg">
-                                  <Brain className="w-5 h-5 text-purple-600" />
-                                </div>
-                                <span className="font-bold text-slate-900">荷倫碼性向測驗</span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                            </button>
-                            <button
-                              onClick={() => { setIsEncyclopediaOpen(true); setIsNavMenuOpen(false); }}
-                              className="w-full text-left px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 flex items-center justify-between group active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-1.5 bg-emerald-100 border-2 border-slate-900 rounded-lg">
-                                  <BookOpen className="w-5 h-5 text-emerald-600" />
-                                </div>
-                                <span className="font-bold text-slate-900">職群科系百科</span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                            </button>
-                            <button
-                              onClick={() => { setActiveModal('schoolTypes'); setIsNavMenuOpen(false); }}
-                              className="w-full text-left px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 flex items-center justify-between group active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-1.5 bg-sky-100 border-2 border-slate-900 rounded-lg">
-                                  <Building2 className="w-5 h-5 text-sky-600" />
-                                </div>
-                                <span className="font-bold text-slate-900">學校類型解析</span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                            </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* 志願選填與落點 */}
-                <div className="bg-white rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
-                  <button 
-                    onClick={() => setExpandedNavCategory(prev => prev === 'strategy' ? null : 'strategy')}
-                    className="w-full flex items-center justify-between p-4 bg-amber-50 outline-none hover:bg-amber-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-amber-200 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <Target className="w-5 h-5 text-amber-700" />
-                      </div>
-                      <span className="font-black text-slate-900 text-lg">志願選填與落點</span>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-slate-900 transition-transform ${expandedNavCategory === 'strategy' ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {expandedNavCategory === 'strategy' && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t-4 border-slate-900 bg-white">
-                        <div className="p-3 flex flex-col gap-2">
-                          {[
-                            { id: 'mockVolunteer', icon: Target, label: '模擬志願選填', color: 'text-sky-600', bg: 'bg-sky-100' },
-                            { id: 'strategy', icon: Target, label: '志願選填攻略', color: 'text-amber-600', bg: 'bg-amber-100' },
-                            { id: 'gradeLevel', icon: Award, label: '等級對照表', color: 'text-rose-600', bg: 'bg-rose-100' },
-                            { id: 'historicalStats', icon: ChartBar, label: '歷年會考統計', color: 'text-indigo-600', bg: 'bg-indigo-100' },
-                            { id: 'importantDates', icon: Map, label: '重要日程', color: 'text-purple-600', bg: 'bg-purple-100' },
-                            { id: 'disclaimer', icon: Shield, label: '免責聲明', color: 'text-slate-600', bg: 'bg-slate-100' }
-                          ].map(btn => (
-                            <button
-                              key={btn.id}
-                              onClick={() => { setActiveModal(btn.id as any); setIsNavMenuOpen(false); }}
-                              className="w-full text-left px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 flex items-center justify-between group active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-1.5 rounded-lg border-2 border-slate-900 ${btn.bg}`}>
-                                  <btn.icon className={`w-5 h-5 ${btn.color}`} />
-                                </div>
-                                <span className="font-bold text-slate-900">{btn.label}</span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* 系統指南與回饋 */}
-                <div className="bg-white rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
-                  <button 
-                    onClick={() => setExpandedNavCategory(prev => prev === 'systemGuide' ? null : 'systemGuide')}
-                    className="w-full flex items-center justify-between p-4 bg-indigo-50 outline-none hover:bg-indigo-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-200 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <Sparkles className="w-5 h-5 text-indigo-700" />
-                      </div>
-                      <span className="font-black text-slate-900 text-lg">系統指南與回饋</span>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-slate-900 transition-transform ${expandedNavCategory === 'systemGuide' ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {expandedNavCategory === 'systemGuide' && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t-4 border-slate-900 bg-white">
-                        <div className="p-3 flex flex-col gap-2">
-                          {[
-                            { id: 'instructions', icon: Info, label: '使用說明', color: 'text-blue-600', bg: 'bg-blue-100' },
-                            { id: 'advantages', icon: Sparkles, label: '系統優點', color: 'text-indigo-600', bg: 'bg-indigo-100' },
-                            { id: 'rating', icon: StarIcon, label: '評分系統', color: 'text-amber-500', bg: 'bg-amber-100' },
-                            { id: 'changelog', icon: History, label: '更新日誌', color: 'text-slate-500', bg: 'bg-slate-100' },
-                            { id: 'privacy', icon: Database, label: '隱私權政策', color: 'text-emerald-600', bg: 'bg-emerald-100' },
-                            { id: 'terms', icon: Shield, label: '服務條款', color: 'text-slate-600', bg: 'bg-slate-100' },
-                            { id: 'reportError', icon: AlertCircle, label: '錯誤回報', color: 'text-red-500', bg: 'bg-red-100' }
-                          ].map(btn => (
-                            <button
-                              key={btn.id}
-                              onClick={() => { setActiveModal(btn.id as any); setIsNavMenuOpen(false); }}
-                              className="w-full text-left px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 flex items-center justify-between group active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-1.5 rounded-lg border-2 border-slate-900 ${btn.bg}`}>
-                                  <btn.icon className={`w-5 h-5 ${btn.color}`} />
-                                </div>
-                                <span className="font-bold text-slate-900">{btn.label}</span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* 外部資源 */}
-                <div className="bg-white rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
-                  <button 
-                    onClick={() => setExpandedNavCategory(prev => prev === 'externalLinks' ? null : 'externalLinks')}
-                     className="w-full flex items-center justify-between p-4 bg-emerald-50 outline-none hover:bg-emerald-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-emerald-200 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <LinkIcon className="w-5 h-5 text-emerald-700" />
-                      </div>
-                      <span className="font-black text-slate-900 text-lg">外部資源與分享</span>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-slate-900 transition-transform ${expandedNavCategory === 'externalLinks' ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {expandedNavCategory === 'externalLinks' && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t-4 border-slate-900 bg-white">
-                        <div className="p-3 flex flex-col gap-2">
-                          {[
-                            { type: 'modal', id: 'scoreInquiry', icon: Search, label: '會考成績查詢', color: 'text-fuchsia-600', bg: 'bg-fuchsia-100' },
-                            { type: 'link', href: 'https://tyctw.github.io/volunteer/', icon: ChartBar, label: '序位查詢', color: 'text-orange-600', bg: 'bg-orange-100' },
-                            { type: 'link', href: 'https://tyctw.github.io/shared/', icon: Library, label: '全國錄取分享', color: 'text-indigo-600', bg: 'bg-indigo-100' },
-                            { type: 'link', href: 'https://tyctw.github.io/score/', icon: List, label: '全國序位分享', color: 'text-emerald-600', bg: 'bg-emerald-100' }
-                          ].map(link => (
-                            link.type === 'link' ? (
-                              <a 
-                                key={link.label}
-                                href={link.href} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 group active:scale-95 transition-all"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className={`p-1.5 rounded-lg border-2 border-slate-900 ${link.bg}`}>
-                                    <link.icon className={`w-4 h-4 ${link.color}`} />
-                                  </div>
-                                  <span className="font-bold text-slate-900">{link.label}</span>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 -rotate-45 group-hover:rotate-0 transition-transform" />
-                              </a>
-                            ) : (
-                              <button 
-                                key={link.label}
-                                onClick={() => {
-                                  setActiveModal(link.id as any);
-                                  setIsNavMenuOpen(false);
-                                }}
-                                className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-transparent hover:border-slate-900 hover:bg-slate-50 group active:scale-95 transition-all outline-none"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className={`p-1.5 rounded-lg border-2 border-slate-900 ${link.bg}`}>
-                                    <link.icon className={`w-4 h-4 ${link.color}`} />
-                                  </div>
-                                  <span className="font-bold text-slate-900">{link.label}</span>
-                                </div>
-                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                              </button>
-                            )
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="bg-white rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] p-4 flex justify-center gap-4">
-                  <a href="https://www.instagram.com/115.rcpet/" target="_blank" rel="noreferrer" className="flex items-center gap-2 group outline-none">
-                    <div className="w-10 h-10 rounded-xl bg-pink-50 border-2 border-slate-900 flex items-center justify-center group-hover:bg-pink-100 group-hover:scale-110 active:scale-95 transition-all text-pink-600 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] group-hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
-                      <Instagram className="w-5 h-5 group-hover:-rotate-6 transition-transform group-hover:rotate-0" />
-                    </div>
-                    <span className="font-bold text-slate-700 text-sm">Instagram</span>
-                  </a>
-                  <div className="w-0.5 h-10 bg-slate-200 rounded-full mx-2"></div>
-                  <a href="https://www.threads.com/@115.rcpet" target="_blank" rel="noreferrer" className="flex items-center gap-2 group outline-none">
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 border-2 border-slate-900 flex items-center justify-center group-hover:bg-slate-100 group-hover:scale-110 active:scale-95 transition-all text-slate-700 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] group-hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
-                      <AtSign className="w-5 h-5 group-hover:rotate-6 transition-transform group-hover:rotate-0" />
-                    </div>
-                    <span className="font-bold text-slate-700 text-sm">Threads</span>
-                  </a>
-                </div>
-
-              </div>
-              <div className="p-4 bg-slate-900 border-t-4 border-slate-900 text-center">
-                <p className="text-slate-400 font-bold text-xs flex items-center justify-center gap-1">
-                  <Check className="w-3 h-3 text-emerald-400" />
-                  會考落點分析系統 v5.0
-                </p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <NavMenu onAction={handleNavAction} />
 
       <AuthFailModal 
         isOpen={activeModal === 'authFail'}
@@ -1747,13 +1477,6 @@ const [activeModal, setActiveModal] = useState<'instructions' | 'disclaimer' | '
     </div>
   );
 }
-
-// Dummy icon components since lucide-react exports specific names and I want to cover fallback safety
-const StarIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-  </svg>
-)
 
 const PieChartIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
